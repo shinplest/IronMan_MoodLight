@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/shin/.platformio/penv/bin:/Users/shin/.platformio/penv:/Library/Frameworks/Python.framework/Versions/3.7/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/bin:/Users/shin/Library/Android/sdk/tools:/Users/shin/Library/Android/sdk/platform-tools:/Users/shin/.android/avd",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}
