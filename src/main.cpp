@@ -24,6 +24,15 @@ void interruptRoutine()
   isr_flag = 1;
 }
 
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h>
@@ -36,6 +45,13 @@ void interruptRoutine()
 int i;//네오픽셀 변수
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include <LiquidCrystal_I2C.h>     //LiquidCrystal 라이브러리 추가 
+LiquidCrystal_I2C lcd(0x27, 16, 2);  //lcd 객체 선언
+
 
 
 void setup()
@@ -116,6 +132,14 @@ void setup()
   // Wait for initialization and calibration to finish
   delay(500);
 
+
+  lcd.init(); // LCD 초기화
+  // Print a message to the LCD.
+  lcd.backlight();     // 백라이트 켜기
+  lcd.setCursor(0, 0); // 1번째, 1라인
+  lcd.print("2019-10-17 01:18");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print("MISE MUNG:200ppm");
 }
 
 void loop()
