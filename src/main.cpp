@@ -2,6 +2,11 @@
 #include <Wire.h>
 #include <SparkFun_APDS9960.h>
 
+//브랜치 테스트를 시행합니다.
+
+
+
+
 // Pins
 #define APDS9960_INT 2 // Needs to be an interrupt pin
 
@@ -23,7 +28,6 @@ void interruptRoutine()
 {
   isr_flag = 1;
 }
-
 
 
 
