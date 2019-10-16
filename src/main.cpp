@@ -60,12 +60,12 @@ int isr_flag = 0;
 
 #define PIN 5          // 네오픽셀 연결 디지털 핀 번호 적기
 #define NUM_LEDS 24    // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
-#define BRIGHTNESS 255 // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 
 int i;                          //네오픽셀 변수
 boolean LightOn = false;        //전원 여부 판단
 int r = 0, g = 0, b = 0, w = 0; //색 밝기 저장
 int stage = 1;                  //0 = red, 1 = white, 2 = green , 3 = blue
+int brightness = 10; // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
@@ -137,40 +137,44 @@ void handleGesture()
         strip.begin();
         for (i = 0; i < 24; i++)
         {
-          strip.setPixelColor(i, r, g, b, 100); //점등
+          strip.setPixelColor(i, 0, 0, 0, 255); //점등
           strip.show();
           delay(150);
         }
-        w = 255;
         LightOn = true; //불 켜져 있음 표시
         Serial.println("불이 켜져있습니다.");
       }
       else
       {
-        w -= 100;
-        if (w < 0)
-        {
-          w = 0;
-          LightOn = false; // 불꺼져있음
-          Serial.println("불이 꺼졌습니다.");
-        }                                   //0보다 작게되면 0으로 해줌.
-        strip.setPixelColor(i, r, g, b, w); // 밝기를 100만큼 줄인다
-        strip.show();
+        if(brightness < 150){
+          brightness += 70;
+          strip.setBrightness(brightness);
+          strip.show();
+        }
       }
 
       break;
 
     case DIR_DOWN:
       Serial.println("DOWN");
-      for (i = 0; i < 24; i++)
-      {
-        strip.setPixelColor(i, 0, 0, 0, 0); // 소등
-        strip.show();
-        delay(50);
+      if(brightness > 80 && LightOn == true){
+          brightness -= 70;
+          strip.setBrightness(brightness);
+          strip.show();
       }
+      else{
+        for (i = 0; i < 24; i++)
+        {
+            strip.setPixelColor(i, 0, 0, 0, 0); // 소등
+            strip.show();
+            delay(50);
+          }
       LightOn = false;
       Serial.println("불이 꺼졌습니다.");
       stage = 1; //기본 스테이지로 초기화.
+
+      }
+      
       break;
     case DIR_LEFT:
       Serial.println("LEFT");
@@ -213,7 +217,7 @@ void setup()
   lcd.print("MISE MUNG:200ppm");
   //////////////////////////////////////////////////////////////////////
 
-  strip.setBrightness(BRIGHTNESS);
+  strip.setBrightness(brightness);
   strip.begin(); // 네오픽셀 제어 시작
   strip.show();  // 네오픽셀 점등
 
