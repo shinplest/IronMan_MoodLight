@@ -7,7 +7,7 @@
   #include <avr/power.h>
 #endif
 
-#define PIN 6 // 네오픽셀 연결 디지털 핀 번호 적기
+#define PIN 5 // 네오픽셀 연결 디지털 핀 번호 적기
 #define NUM_LEDS 24 // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
 #define BRIGHTNESS 255 // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 

@@ -26,83 +26,203 @@ O, X (Turn on, Turn off)
 
 */
 
+/****************************************************************
+
+https://github.com/sparkfun/APDS-9960_RGB_and_Gesture_Sensor
 
 
-#include <Arduino.h>
-#include <Wire.h>
-#include <SparkFun_APDS9960.h>
-
-
-// Pins
-#define APDS9960_INT 2 // Needs to be an interrupt pin
-
-// Constants
-#define LIGHT_INT_HIGH 1000 // High light level for interrupt
-#define LIGHT_INT_LOW 10    // Low light level for interrupt
-
-// Global variables
-SparkFun_APDS9960 apds = SparkFun_APDS9960();
-uint16_t ambient_light = 0;
-uint16_t red_light = 0;
-uint16_t green_light = 0;
-uint16_t blue_light = 0;
-int isr_flag = 0;
-uint16_t threshold = 0;
-
-//method
-void interruptRoutine()
-{
-  isr_flag = 1;
-}
-
-
-
+IMPORTANT: The APDS-9960 can only accept 3.3V!
+ 
+ Arduino Pin  APDS-9960 Board  Function
+ 
+ 3.3V         VCC              Power
+ GND          GND              Ground
+ A4           SDA              I2C Data
+ A5           SCL              I2C Clock
+ 2            INT              Interrupt
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//제스쳐관련 선언
+#include <Wire.h>
+#include <SparkFun_APDS9960.h>
+#define APDS9960_INT 2 // Needs to be an interrupt pin
+SparkFun_APDS9960 apds = SparkFun_APDS9960();
+int isr_flag = 0;
 
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//네오픽셀관련 선언
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
 
-#define PIN 6          // 네오픽셀 연결 디지털 핀 번호 적기
+#define PIN 5          // 네오픽셀 연결 디지털 핀 번호 적기
 #define NUM_LEDS 24    // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
 #define BRIGHTNESS 255 // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 
-int i;//네오픽셀 변수
+int i;                          //네오픽셀 변수
+boolean LightOn = false;        //전원 여부 판단
+int r = 0, g = 0, b = 0, w = 0; //색 밝기 저장
+int stage = 1;                  //0 = red, 1 = white, 2 = green , 3 = blue
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//LCD관련 선언
 
+#include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
+LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#include <LiquidCrystal_I2C.h>     //LiquidCrystal 라이브러리 추가 
-LiquidCrystal_I2C lcd(0x27, 16, 2);  //lcd 객체 선언
+//네오픽셀 함수
 
+void colorWipe(uint32_t c, uint8_t wait)
+{
+  for (uint16_t i = 0; i < strip.numPixels(); i++)
+  {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+}
 
+void ChangeColor()
+{
+  if (LightOn == true)
+  {
+    switch (stage)
+    {
+    case 0:
+      colorWipe(strip.Color(255, 0, 0, 0), 30);
+      Serial.println("빨간색으로 바꿉니다.");
+      break;
+    case 1:
+      colorWipe(strip.Color(0, 0, 0, 255), 30);
+      Serial.println("흰색으로 바꿉니다.");
+      break;
+    case 2:
+      colorWipe(strip.Color(0, 255, 0, 0), 30);
+      Serial.println("초록색으로 바꿉니다.");
+      break;
+    case 3:
+      colorWipe(strip.Color(0, 0, 255, 0), 30);
+      Serial.println("파란색으로 바꿉니다.");
+      break;
+
+    default:
+      break;
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//제스쳐 함수
+void interruptRoutine()
+{
+  isr_flag = 1;
+}
+
+void handleGesture()
+{
+  if (apds.isGestureAvailable())
+  {
+    switch (apds.readGesture())
+    {
+    case DIR_UP:
+      Serial.println("UP");
+      if (LightOn == false) //꺼져있을때만 점등
+      {
+        strip.begin();
+        for (i = 0; i < 24; i++)
+        {
+          strip.setPixelColor(i, r, g, b, 100); //점등
+          strip.show();
+          delay(150);
+        }
+        w = 255;
+        LightOn = true; //불 켜져 있음 표시
+        Serial.println("불이 켜져있습니다.");
+      }
+      else
+      {
+        w -= 100;
+        if (w < 0)
+        {
+          w = 0;
+          LightOn = false; // 불꺼져있음
+          Serial.println("불이 꺼졌습니다.");
+        }                                   //0보다 작게되면 0으로 해줌.
+        strip.setPixelColor(i, r, g, b, w); // 밝기를 100만큼 줄인다
+        strip.show();
+      }
+
+      break;
+
+    case DIR_DOWN:
+      Serial.println("DOWN");
+      for (i = 0; i < 24; i++)
+      {
+        strip.setPixelColor(i, 0, 0, 0, 0); // 소등
+        strip.show();
+        delay(50);
+      }
+      LightOn = false;
+      Serial.println("불이 꺼졌습니다.");
+      stage = 1; //기본 스테이지로 초기화.
+      break;
+    case DIR_LEFT:
+      Serial.println("LEFT");
+      if (stage > 0) //스테이지 범위안에서만
+      {
+        stage--;
+        ChangeColor(); //색 바꿔줍니다
+      }
+      break;
+    case DIR_RIGHT:
+      Serial.println("RIGHT");
+      if (stage < 3)
+      {
+        stage++;
+        ChangeColor();
+      }
+      break;
+    // case DIR_NEAR:
+    //   Serial.println("NEAR");
+    //   break;
+    // case DIR_FAR:
+    //   Serial.println("FAR");
+    //   break;
+    default:
+      Serial.println("NONE");
+    }
+  }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void setup()
 {
+   //////////////////////////////////////////////////////////////////////
+  lcd.init(); // LCD 초기화
+  // Print a message to the LCD.
+  // lcd.backlight();     // 백라이트 켜기
+  lcd.setCursor(0, 0); // 1번째, 1라인
+  lcd.print("2019-10-17 01:18");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print("MISE MUNG:200ppm");
+  //////////////////////////////////////////////////////////////////////
 
   strip.setBrightness(BRIGHTNESS);
   strip.begin(); // 네오픽셀 제어 시작
   strip.show();  // 네오픽셀 점등
 
+  //////////////////////////////////////////////////////////////////////
+
   pinMode(APDS9960_INT, INPUT);
-
-  // Initialize Serial port
   Serial.begin(9600);
-  Serial.println();
-  Serial.println(F("-------------------------------------"));
-  Serial.println(F("SparkFun APDS-9960 - Light Interrupts"));
-  Serial.println(F("-------------------------------------"));
-
   // Initialize interrupt service routine
   attachInterrupt(0, interruptRoutine, FALLING);
-
   // Initialize APDS-9960 (configure I2C and initial values)
   if (apds.init())
   {
@@ -112,121 +232,24 @@ void setup()
   {
     Serial.println(F("Something went wrong during APDS-9960 init!"));
   }
-
-  // Set high and low interrupt thresholds
-  if (!apds.setLightIntLowThreshold(LIGHT_INT_LOW))
+  // Start running the APDS-9960 gesture sensor engine
+  if (apds.enableGestureSensor(true))
   {
-    Serial.println(F("Error writing low threshold"));
-  }
-  if (!apds.setLightIntHighThreshold(LIGHT_INT_HIGH))
-  {
-    Serial.println(F("Error writing high threshold"));
-  }
-
-  // Start running the APDS-9960 light sensor (no interrupts)
-  if (apds.enableLightSensor(false))
-  {
-    Serial.println(F("Light sensor is now running"));
+    Serial.println(F("Gesture sensor is now running"));
   }
   else
   {
-    Serial.println(F("Something went wrong during light sensor init!"));
+    Serial.println(F("Something went wrong during gesture sensor init!"));
   }
-
-  // Read high and low interrupt thresholds
-  if (!apds.getLightIntLowThreshold(threshold))
-  {
-    Serial.println(F("Error reading low threshold"));
-  }
-  else
-  {
-    Serial.print(F("Low Threshold: "));
-    Serial.println(threshold);
-  }
-  if (!apds.getLightIntHighThreshold(threshold))
-  {
-    Serial.println(F("Error reading high threshold"));
-  }
-  else
-  {
-    Serial.print(F("High Threshold: "));
-    Serial.println(threshold);
-  }
-
-  // Enable interrupts
-  if (!apds.setAmbientLightIntEnable(1))
-  {
-    Serial.println(F("Error enabling interrupts"));
-  }
-
-  // Wait for initialization and calibration to finish
-  delay(500);
-
-
-  lcd.init(); // LCD 초기화
-  // Print a message to the LCD.
-  lcd.backlight();     // 백라이트 켜기
-  lcd.setCursor(0, 0); // 1번째, 1라인
-  lcd.print("2019-10-17 01:18");
-  lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("MISE MUNG:200ppm");
 }
 
 void loop()
 {
-  // If interrupt occurs, print out the light levels
   if (isr_flag == 1)
   {
-
-    // Read the light levels (ambient, red, green, blue) and print
-    if (!apds.readAmbientLight(ambient_light) ||
-        !apds.readRedLight(red_light) ||
-        !apds.readGreenLight(green_light) ||
-        !apds.readBlueLight(blue_light))
-    {
-      Serial.println("Error reading light values");
-    }
-    else
-    {
-      if (ambient_light < 10)
-      {
-        strip.begin();
-        // strip.setPixelColor(0, 255, 0, 0, 0); // 첫 번째 숫자: 0번째(1번) 픽셀 소자, 0=1번째 픽셀, 1=2번째 픽셀 ...
-        //strip.setPixelColor(1, 0, 255, 0, 0); // 둘째, 셋제, 넷째는 R(RED), G(GREEN), B(BLUE), W(White)값, 0~255사이 표현
-        //strip.setPixelColor(2, 0, 0, 255, 0); // 3번째 픽셀에 B(Blue)소자를 255로 켜기
-        for(i = 0; i < 24; i++){
-          strip.setPixelColor(i, 0, 0, 0, 255); // 4번째 픽셀에 W(White)소자를 255로 켜기
-          strip.show();
-          delay(150);
-        }
-
-      }
-      else
-      {
-        for(i = 0; i < 24; i++){
-          strip.setPixelColor(i, 0, 0, 0, 0); // 4번째 픽셀에 W(White)소자를 255로 켜기
-          strip.show();
-          delay(50);
-        }
-      }
-
-      Serial.print("Interrupt! Ambient: ");
-      Serial.print(ambient_light);
-      Serial.print(" R: ");
-      Serial.print(red_light);
-      Serial.print(" G: ");
-      Serial.print(green_light);
-      Serial.print(" B: ");
-      Serial.println(blue_light);
-    }
-
-    // Reset flag and clear APDS-9960 interrupt (IMPORTANT!)
+    detachInterrupt(0);
+    handleGesture();
     isr_flag = 0;
-    if (!apds.clearAmbientLightInt())
-    {
-      Serial.println("Error clearing interrupt");
-    }
+    attachInterrupt(0, interruptRoutine, FALLING);
   }
-
-  //commit을 위한 주석입니다.
 }
