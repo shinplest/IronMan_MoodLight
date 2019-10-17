@@ -41,6 +41,13 @@ IMPORTANT: The APDS-9960 can only accept 3.3V!
  A5           SCL              I2C Clock
  2            INT              Interrupt
 */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//블루투스 관련 선언
+#include <SoftwareSerial.h>
+int Tx = 6; //전송
+int Rx = 7; //수신
+SoftwareSerial btSerial(Tx, Rx);
+String data = "";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //제스쳐관련 선언
@@ -58,14 +65,14 @@ int isr_flag = 0;
 #include <avr/power.h>
 #endif
 
-#define PIN 5          // 네오픽셀 연결 디지털 핀 번호 적기
-#define NUM_LEDS 24    // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
+#define PIN 5       // 네오픽셀 연결 디지털 핀 번호 적기
+#define NUM_LEDS 24 // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
 
 int i;                          //네오픽셀 변수
 boolean LightOn = false;        //전원 여부 판단
 int r = 0, g = 0, b = 0, w = 0; //색 밝기 저장
 int stage = 1;                  //0 = red, 1 = white, 2 = green , 3 = blue
-int brightness = 10; // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
+int brightness = 10;            // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
@@ -74,6 +81,28 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800
 
 #include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
 LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//블루투스 함수
+
+void getbtstring(){
+  while(btSerial.available()) {
+    char datachar = (char)btSerial.read();
+    if(datachar == 13)
+    {
+      //Serial.println("13번실행");
+      continue;
+    }
+    if(datachar == 10)
+    {
+      //Serial.println("10번실행");
+      continue;
+    }
+    data += datachar;
+    //Serial.println("실행");
+    delay(5);
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀 함수
@@ -117,6 +146,52 @@ void ChangeColor()
   }
 }
 
+void TurnOnLight()
+{
+   if (LightOn == false) //꺼져있을때만 점등
+      {
+        strip.begin();
+        for (i = 0; i < 24; i++)
+        {
+          strip.setPixelColor(i, 0, 0, 0, 255); //점등
+          strip.show();
+          delay(150);
+        }
+        LightOn = true; //불 켜져 있음 표시
+        Serial.println("불이 켜져있습니다.");
+      }
+      else
+      {
+        if (brightness < 150)
+        {
+          brightness += 70;
+          strip.setBrightness(brightness);
+          strip.show();
+        }
+      }
+}
+
+void TurnOffLight()
+{
+  if (brightness > 80 && LightOn == true)
+      {
+        brightness -= 70;
+        strip.setBrightness(brightness);
+        strip.show();
+      }
+      else
+      {
+        for (i = 0; i < 24; i++)
+        {
+          strip.setPixelColor(i, 0, 0, 0, 0); // 소등
+          strip.show();
+          delay(50);
+        }
+        LightOn = false;
+        Serial.println("불이 꺼졌습니다.");
+        stage = 1; //기본 스테이지로 초기화.
+      }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //제스쳐 함수
 void interruptRoutine()
@@ -132,49 +207,11 @@ void handleGesture()
     {
     case DIR_UP:
       Serial.println("UP");
-      if (LightOn == false) //꺼져있을때만 점등
-      {
-        strip.begin();
-        for (i = 0; i < 24; i++)
-        {
-          strip.setPixelColor(i, 0, 0, 0, 255); //점등
-          strip.show();
-          delay(150);
-        }
-        LightOn = true; //불 켜져 있음 표시
-        Serial.println("불이 켜져있습니다.");
-      }
-      else
-      {
-        if(brightness < 150){
-          brightness += 70;
-          strip.setBrightness(brightness);
-          strip.show();
-        }
-      }
-
+      TurnOnLight();
       break;
 
     case DIR_DOWN:
-      Serial.println("DOWN");
-      if(brightness > 80 && LightOn == true){
-          brightness -= 70;
-          strip.setBrightness(brightness);
-          strip.show();
-      }
-      else{
-        for (i = 0; i < 24; i++)
-        {
-            strip.setPixelColor(i, 0, 0, 0, 0); // 소등
-            strip.show();
-            delay(50);
-          }
-      LightOn = false;
-      Serial.println("불이 꺼졌습니다.");
-      stage = 1; //기본 스테이지로 초기화.
-
-      }
-      
+      TurnOffLight();
       break;
     case DIR_LEFT:
       Serial.println("LEFT");
@@ -207,7 +244,9 @@ void handleGesture()
 
 void setup()
 {
-   //////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  btSerial.begin(9600);
+  //////////////////////////////////////////////////////////////////////
   lcd.init(); // LCD 초기화
   // Print a message to the LCD.
   // lcd.backlight();     // 백라이트 켜기
@@ -255,5 +294,22 @@ void loop()
     handleGesture();
     isr_flag = 0;
     attachInterrupt(0, interruptRoutine, FALLING);
+  }
+
+  getbtstring();
+
+  if(!data.equals(""))  //myString 값이 있다면
+  {
+    if(data == "aa00aa")
+    {
+      TurnOnLight();
+    }
+    else
+    {
+      TurnOffLight();
+    }
+    
+ 
+    data="";  //myString 변수값 초기화
   }
 }
