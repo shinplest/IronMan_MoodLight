@@ -223,7 +223,7 @@ void TurnOnLight()
 
 void TurnOffLight()
 {
-  if (brightness > 80 && LightOn == true)
+  if (brightness >= 80 && LightOn == true)
       {
         brightness -= 70;
         strip.setBrightness(brightness);
