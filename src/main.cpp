@@ -55,12 +55,10 @@ void handleGesture();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀관련 선언
-
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
-
 #define PIN 5       // 네오픽셀 연결 디지털 핀 번호 적기
 #define NUM_LEDS 24 // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
 
@@ -326,8 +324,6 @@ void bluetoothonoff(){
     {
       TurnOffLight();
     }
-    
- 
     data="";  //myString 변수값 초기화
   }
 }
