@@ -1,19 +1,14 @@
 /*-
 Basic Code Structure
-
 =====블루투스 연결되었을 경우 
-
 문자 데이터 수신
 O, X (Turn on, Turn off)
 컬러퍽커 값 받아옴 색바꾸고
 밝기 값 전송 변화
 여러가지 신기한 모드 지원(레인보우 등등 )
-
 =====블루투스 연결되지 않았을 경우
-
 ->제스쳐 센서 동작
 제스쳐 각각의 경우에 따라, 함수 작성 
-
 1. 오른쪽
 -> 색 변경
 2. 왼쪽
@@ -22,15 +17,10 @@ O, X (Turn on, Turn off)
 -> 볼륨 업
 4. 아래
 ->볼륨 다운
-
-
 */
 
 /****************************************************************
-
 https://github.com/sparkfun/APDS-9960_RGB_and_Gesture_Sensor
-
-
 IMPORTANT: The APDS-9960 can only accept 3.3V!
  
  Arduino Pin  APDS-9960 Board  Function
@@ -49,6 +39,9 @@ int Rx = 7; //수신
 SoftwareSerial btSerial(Tx, Rx);
 String data = "";
 
+void getbtstring();
+void bluetoothonoff();
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //제스쳐관련 선언
 #include <Wire.h>
@@ -56,6 +49,9 @@ String data = "";
 #define APDS9960_INT 2 // Needs to be an interrupt pin
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
 int isr_flag = 0;
+
+void interruptRoutine();
+void handleGesture();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀관련 선언
@@ -76,33 +72,89 @@ int brightness = 10;            // 네오픽셀 밝기 설정 0(어두움) ~ 255
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
+void colorWipe(uint32_t c, uint8_t wait);
+void ChangeColor();
+void TurnOnLight();
+void TurnOffLight();
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //LCD관련 선언
 
 #include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
 LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//블루투스 함수
 
-void getbtstring(){
-  while(btSerial.available()) {
-    char datachar = (char)btSerial.read();
-    if(datachar == 13)
-    {
-      //Serial.println("13번실행");
-      continue;
-    }
-    if(datachar == 10)
-    {
-      //Serial.println("10번실행");
-      continue;
-    }
-    data += datachar;
-    //Serial.println("실행");
-    delay(5);
+
+
+
+
+
+
+void setup()
+{
+  //////////////////////////////////////////////////////////////////////
+  btSerial.begin(9600);
+  Serial.begin(9600);
+  //////////////////////////////////////////////////////////////////////
+  lcd.init(); // LCD 초기화
+  // Print a message to the LCD.
+  // lcd.backlight();     // 백라이트 켜기
+  lcd.setCursor(0, 0); // 1번째, 1라인
+  lcd.print("2019-10-17 01:18");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print("MISE MUNG:200ppm");
+  //////////////////////////////////////////////////////////////////////
+  strip.setBrightness(brightness);
+  strip.begin(); // 네오픽셀 제어 시작
+  strip.show();  // 네오픽셀 점등
+  //////////////////////////////////////////////////////////////////////
+  pinMode(APDS9960_INT, INPUT);
+  // Initialize interrupt service routine
+  attachInterrupt(0, interruptRoutine, FALLING);
+  // Initialize APDS-9960 (configure I2C and initial values)
+  if (apds.init())
+  {
+    Serial.println(F("APDS-9960 initialization complete"));
+  }
+  else
+  {
+    Serial.println(F("Something went wrong during APDS-9960 init!"));
+  }
+  // Start running the APDS-9960 gesture sensor engine
+  if (apds.enableGestureSensor(true))
+  {
+    Serial.println(F("Gesture sensor is now running"));
+  }
+  else
+  {
+    Serial.println(F("Something went wrong during gesture sensor init!"));
   }
 }
+
+void loop()
+{
+  if (isr_flag == 1)
+  {
+    detachInterrupt(0);
+    handleGesture();
+    isr_flag = 0;
+    attachInterrupt(0, interruptRoutine, FALLING);
+  }
+
+  getbtstring();
+  bluetoothonoff();
+
+}
+
+
+
+
+
+
+
+
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀 함수
@@ -240,64 +292,30 @@ void handleGesture()
     }
   }
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//블루투스 함수
 
-void setup()
-{
-  //////////////////////////////////////////////////////////////////////
-  btSerial.begin(9600);
-  //////////////////////////////////////////////////////////////////////
-  lcd.init(); // LCD 초기화
-  // Print a message to the LCD.
-  // lcd.backlight();     // 백라이트 켜기
-  lcd.setCursor(0, 0); // 1번째, 1라인
-  lcd.print("2019-10-17 01:18");
-  lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("MISE MUNG:200ppm");
-  //////////////////////////////////////////////////////////////////////
-
-  strip.setBrightness(brightness);
-  strip.begin(); // 네오픽셀 제어 시작
-  strip.show();  // 네오픽셀 점등
-
-  //////////////////////////////////////////////////////////////////////
-
-  pinMode(APDS9960_INT, INPUT);
-  Serial.begin(9600);
-  // Initialize interrupt service routine
-  attachInterrupt(0, interruptRoutine, FALLING);
-  // Initialize APDS-9960 (configure I2C and initial values)
-  if (apds.init())
-  {
-    Serial.println(F("APDS-9960 initialization complete"));
-  }
-  else
-  {
-    Serial.println(F("Something went wrong during APDS-9960 init!"));
-  }
-  // Start running the APDS-9960 gesture sensor engine
-  if (apds.enableGestureSensor(true))
-  {
-    Serial.println(F("Gesture sensor is now running"));
-  }
-  else
-  {
-    Serial.println(F("Something went wrong during gesture sensor init!"));
+void getbtstring(){
+  while(btSerial.available()) {
+    char datachar = (char)btSerial.read();
+    if(datachar == 13)
+    {
+      //Serial.println("13번실행");
+      continue;
+    }
+    if(datachar == 10)
+    {
+      //Serial.println("10번실행");
+      continue;
+    }
+    data += datachar;
+    //Serial.println("실행");
+    delay(5);
   }
 }
 
-void loop()
-{
-  if (isr_flag == 1)
-  {
-    detachInterrupt(0);
-    handleGesture();
-    isr_flag = 0;
-    attachInterrupt(0, interruptRoutine, FALLING);
-  }
-
-  getbtstring();
-
+void bluetoothonoff(){
   if(!data.equals(""))  //myString 값이 있다면
   {
     if(data == "aa00aa")
@@ -313,3 +331,5 @@ void loop()
     data="";  //myString 변수값 초기화
   }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
