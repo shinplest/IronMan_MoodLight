@@ -81,7 +81,12 @@ void TurnOffLight();
 #include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
 LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//온도센서 관련 선언
+int tempsensor = A0;
 
+float getTemperature();
+void printTemperature(float celsiustemp);
 
 
 
@@ -141,6 +146,7 @@ void loop()
 
   getbtstring();
   bluetoothonoff();
+  //printTemperature(getTemperature());
 
 }
 
@@ -329,3 +335,18 @@ void bluetoothonoff(){
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//온도센서 함수
+
+float getTemperature()
+{
+  int reading = analogRead(tempsensor);  // 센서로 부터 자료값을 받는다.
+  float voltage = reading * 5.0 / 1024.0;
+  float celsiustemp = (voltage - 0.5) * 100 ; 
+  return celsiustemp;
+};
+
+void printTemperature(float celsiustemp){
+  Serial.print(celsiustemp);
+  Serial.println("°C");
+  delay(100);
+}
