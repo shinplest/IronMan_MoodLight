@@ -93,6 +93,20 @@ void printTemperature(float celsiustemp);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void setup()
 {
   //////////////////////////////////////////////////////////////////////
@@ -134,6 +148,15 @@ void setup()
   }
 }
 
+
+
+
+
+
+
+
+
+
 void loop()
 {
   if (isr_flag == 1)
@@ -149,6 +172,23 @@ void loop()
   //printTemperature(getTemperature());
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -303,32 +343,55 @@ void handleGesture()
 void getbtstring(){
   while(btSerial.available()) {
     char datachar = (char)btSerial.read();
-    if(datachar == 13)
+    if(data.length() == 6) break;
+    if(datachar == 13)          // /n 과 라인체인지값 빼준다. 
     {
-      //Serial.println("13번실행");
       continue;
     }
     if(datachar == 10)
     {
-      //Serial.println("10번실행");
       continue;
     }
     data += datachar;
-    //Serial.println("실행");
     delay(5);
   }
+  Serial.println(data); //끝나고 읽은 값 출력해줌
+  Serial.println("실행");
 }
 
 void bluetoothonoff(){
   if(!data.equals(""))  //myString 값이 있다면
   {
-    if(data == "aa00aa")
+    if(data == "on")
     {
       TurnOnLight();
     }
-    else
+    else if(data == "off")
     {
       TurnOffLight();
+    }
+    else                    //색 정보 보내줬을 경우
+    {
+      String red = data.substring(0, 2);
+      String green = data.substring(2, 4);
+      String blue = data.substring(4, 6);
+
+      char r[3];
+      red.toCharArray(r, 3);
+      char g[3];
+      green.toCharArray(g, 3);
+      char b[3];
+      blue.toCharArray(b, 3);
+
+      Serial.println(r);
+      Serial.println(g);
+      Serial.println(b);
+
+      int rhex = strtol(r, NULL, 16);
+      int ghex = strtol(g, NULL, 16);
+      int bhex = strtol(b, NULL, 16);
+
+      colorWipe(strip.Color(rhex, ghex, bhex, 0), 20);
     }
     data="";  //myString 변수값 초기화
   }
