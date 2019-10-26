@@ -89,6 +89,13 @@ float getTemperature();
 void printTemperature(float celsiustemp);
 
 
+void btserialFlush(){
+  while(btSerial.available() > 0) {
+    char t = btSerial.read();
+  }
+}   
+
+
 
 
 
@@ -161,15 +168,23 @@ void loop()
 {
   if (isr_flag == 1)
   {
+    Serial.println("제스쳐 실행중");
     detachInterrupt(0);
     handleGesture();
     isr_flag = 0;
+    Serial.println("제스쳐 실행중2");
     attachInterrupt(0, interruptRoutine, FALLING);
-  }
+        Serial.println("제스쳐 실행중2");
 
+  }
+  Serial.println("멈출땐 어딘지 밝히거라 ");
   getbtstring();
   bluetoothonoff();
+  Serial.println("멈출땐 어딘지 밝히거라 1");
+
   //printTemperature(getTemperature());
+
+  Serial.println("멈출땐 어딘지 밝히거라 2");
 
 }
 
@@ -343,7 +358,12 @@ void handleGesture()
 void getbtstring(){
   while(btSerial.available()) {
     char datachar = (char)btSerial.read();
-    if(data.length() == 6) break;
+    if(data.length() == 6) 
+    {
+      btserialFlush();
+      Serial.println("6개라서 끊어준다");
+      break;
+    }
     if(datachar == 13)          // /n 과 라인체인지값 빼준다. 
     {
       continue;
@@ -356,7 +376,7 @@ void getbtstring(){
     delay(5);
   }
   Serial.println(data); //끝나고 읽은 값 출력해줌
-  Serial.println("실행");
+  delay(300);
 }
 
 void bluetoothonoff(){
@@ -391,7 +411,7 @@ void bluetoothonoff(){
       int ghex = strtol(g, NULL, 16);
       int bhex = strtol(b, NULL, 16);
 
-      colorWipe(strip.Color(rhex, ghex, bhex, 0), 20);
+      colorWipe(strip.Color(rhex, ghex, bhex, 0), 0);
     }
     data="";  //myString 변수값 초기화
   }
