@@ -168,24 +168,14 @@ void loop()
 {
   if (isr_flag == 1)
   {
-    Serial.println("제스쳐 실행중");
     detachInterrupt(0);
     handleGesture();
     isr_flag = 0;
-    Serial.println("제스쳐 실행중2");
     attachInterrupt(0, interruptRoutine, FALLING);
-        Serial.println("제스쳐 실행중2");
-
   }
-  Serial.println("멈출땐 어딘지 밝히거라 ");
   getbtstring();
   bluetoothonoff();
-  Serial.println("멈출땐 어딘지 밝히거라 1");
-
-  //printTemperature(getTemperature());
-
-  Serial.println("멈출땐 어딘지 밝히거라 2");
-
+ 
 }
 
 
@@ -417,19 +407,3 @@ void bluetoothonoff(){
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//온도센서 함수
-
-float getTemperature()
-{
-  int reading = analogRead(tempsensor);  // 센서로 부터 자료값을 받는다.
-  float voltage = reading * 5.0 / 1024.0;
-  float celsiustemp = (voltage - 0.5) * 100 ; 
-  return celsiustemp;
-};
-
-void printTemperature(float celsiustemp){
-  Serial.print(celsiustemp);
-  Serial.println("°C");
-  delay(100);
-}
