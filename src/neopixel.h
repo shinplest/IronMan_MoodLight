@@ -14,4 +14,17 @@ int brightness = 10;                 //네오픽셀 밝기 설정 0(어두움) ~
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
 
+void colorWipe(uint32_t c, uint8_t wait);
+void colorWipe(uint32_t c, uint8_t wait)
+{
+  for (uint16_t i = 0; i < strip.numPixels(); i++)
+  {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+}
+
+
+
 #endif
