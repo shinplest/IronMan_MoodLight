@@ -6,5 +6,6 @@
 #include <SparkFun_APDS9960.h>
 #define APDS9960_INT 2 // Needs to be an interrupt pin
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
+int isr_flag = 0;
 
 #endif

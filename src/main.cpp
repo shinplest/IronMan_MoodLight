@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include "bluetooth.h"
 #include "gesture.h"
+#include "neopixel.h"
+
+#include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
+LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 //블루투스 관련 선언
 String data = "";
 void getbtstring();
@@ -8,43 +12,17 @@ void bluetoothonoff();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //제스쳐관련 선언
-int isr_flag = 0;
 void interruptRoutine();
 void handleGesture();
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀관련 선언
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-#include <avr/power.h>
-#endif
-#define PIN 5       // 네오픽셀 연결 디지털 핀 번호 적기
-#define NUM_LEDS 24 // 네오픽셀 소자 수, 1부터 시작. (3개 연결시, 3 작성)
-
 int i;                          //네오픽셀 변수
-boolean LightOn = false;        //전원 여부 판단
-int r = 0, g = 0, b = 0, w = 0; //색 밝기 저장
-int stage = 1;                  //0 = red, 1 = white, 2 = green , 3 = blue
 int brightness = 10;            // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
-
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
-
 void colorWipe(uint32_t c, uint8_t wait);
 void ChangeColor();
 void TurnOnLight();
 void TurnOffLight();
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//LCD관련 선언
-
-#include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
-LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//온도센서 관련 선언
-int tempsensor = A0;
-
-float getTemperature();
-void printTemperature(float celsiustemp);
 
 
 void btserialFlush(){
@@ -189,9 +167,9 @@ void colorWipe(uint32_t c, uint8_t wait)
 
 void ChangeColor()
 {
-  if (LightOn == true)
+  if (LightState == true)
   {
-    switch (stage)
+    switch (ColorState)
     {
     case 0:
       colorWipe(strip.Color(255, 0, 0, 0), 30);
@@ -218,7 +196,7 @@ void ChangeColor()
 
 void TurnOnLight()
 {
-   if (LightOn == false) //꺼져있을때만 점등
+   if (LightState == false) //꺼져있을때만 점등
       {
         strip.begin();
         for (i = 0; i < 24; i++)
@@ -227,7 +205,7 @@ void TurnOnLight()
           strip.show();
           delay(150);
         }
-        LightOn = true; //불 켜져 있음 표시
+        LightState = true; //불 켜져 있음 표시
         Serial.println("불이 켜져있습니다.");
       }
       else
@@ -243,7 +221,7 @@ void TurnOnLight()
 
 void TurnOffLight()
 {
-  if (brightness >= 80 && LightOn == true)
+  if (brightness >= 80 && LightState == true)
       {
         brightness -= 70;
         strip.setBrightness(brightness);
@@ -257,9 +235,9 @@ void TurnOffLight()
           strip.show();
           delay(50);
         }
-        LightOn = false;
+        LightState = false;
         Serial.println("불이 꺼졌습니다.");
-        stage = 1; //기본 스테이지로 초기화.
+        ColorState = 1; //기본 스테이지로 초기화.
       }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,17 +263,17 @@ void handleGesture()
       break;
     case DIR_LEFT:
       Serial.println("LEFT");
-      if (stage > 0) //스테이지 범위안에서만
+      if (ColorState > 0) //스테이지 범위안에서만
       {
-        stage--;
+        ColorState--;
         ChangeColor(); //색 바꿔줍니다
       }
       break;
     case DIR_RIGHT:
       Serial.println("RIGHT");
-      if (stage < 3)
+      if (ColorState < 3)
       {
-        stage++;
+        ColorState++;
         ChangeColor();
       }
       break;
