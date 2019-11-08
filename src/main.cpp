@@ -9,6 +9,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
 //전역변수
 int turn = 0;
+int VolumeState= 0;
 
 //블루투스 관련 선언
 String data = "";
@@ -70,11 +71,13 @@ void setup()
 
 void loop()
 {
+  
   lcd.setCursor(0, 0); // 1번째, 2라인
   lcd.print("Gesture Running");
   lcd.setCursor(0, 1); // 1번째, 2라인
   lcd.print(turn);
   turn++;
+  
   if (isr_flag == 1)
   {
     detachInterrupt(0);
@@ -84,6 +87,16 @@ void loop()
   }
   getbtstring();
   bluetoothonoff();
+
+  if(VolumeState == 4){
+     //whiteOverRainbow(102, 2);
+     rainbowFade2White(3,3,0);
+  }
+
+  if(LightState == false){
+    pulseWhite(5);
+    //whiteOverRainbow(100, 2);
+  }
 }
 
 
@@ -151,6 +164,7 @@ void TurnOffLight()
         ColorState = 1; //기본 스테이지로 초기화.
       }
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //제스쳐 함수
 
@@ -161,12 +175,17 @@ void handleGesture()
     switch (apds.readGesture())
     {
     case DIR_UP:
-      Serial.println("UP");
-      TurnOnLight();
+      if(VolumeState == 4){
+      } else{
+        Serial.println("UP");
+        TurnOnLight();
+        VolumeState++;
+      }
       break;
 
     case DIR_DOWN:
       TurnOffLight();
+      VolumeState--;
       break;
     case DIR_LEFT:
       Serial.println("LEFT");
