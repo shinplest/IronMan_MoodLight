@@ -16,28 +16,18 @@ void interruptRoutine();
 void handleGesture();
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀관련 선언
-int i;                          //네오픽셀 변수
-int brightness = 10;            // 네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
+int i;                          //네오픽셀 변수       
 void colorWipe(uint32_t c, uint8_t wait);
 void ChangeColor();
-void TurnOnLight();
+// void TurnOnLight();
 void TurnOffLight();
 
+// void btserialFlush(){
+//   while(btSerial.available() > 0) {
+//     char t = btSerial.read();
+//   }
+// } 
 
-
-void btserialFlush(){
-  while(btSerial.available() > 0) {
-    char t = btSerial.read();
-  }
-} 
-
-
-///
-void turnbacklight(){
-  lcd.backlight();     // 백라이트 켜기
-  delay(2000);
-  lcd.noBacklight(); // turn off backlight
-}
 
 
 
@@ -65,14 +55,11 @@ void setup()
   Serial.begin(9600);
   //////////////////////////////////////////////////////////////////////
   lcd.init(); // LCD 초기화
-  // Print a message to the LCD.
- 
+  lcd.backlight();
   lcd.setCursor(0, 0); // 1번째, 1라인
-  lcd.print("2019-10-17 01:18");
+  lcd.print("Turning On");
   lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("MISE MUNG:200ppm");
-
-  turnbacklight();
+  lcd.print("Gesture Sensor..");
   
   //////////////////////////////////////////////////////////////////////
   strip.setBrightness(brightness);
@@ -110,9 +97,14 @@ void setup()
 
 
 
-
+int turn = 0;
 void loop()
 {
+  lcd.setCursor(0, 0); // 1번째, 2라인
+  lcd.print("Gesture Running");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print(turn);
+  turn++;
   if (isr_flag == 1)
   {
     detachInterrupt(0);
@@ -122,7 +114,6 @@ void loop()
   }
   getbtstring();
   bluetoothonoff();
- 
 }
 
 
@@ -277,14 +268,12 @@ void handleGesture()
         ChangeColor();
       }
       break;
-    case DIR_NEAR:
-      Serial.println("NEAR");
-      turnbacklight();
-      break;
-    case DIR_FAR:
-      Serial.println("FAR");
-      turnbacklight();
-      break;
+    // case DIR_NEAR:
+    //   Serial.println("NEAR");
+    //   break;
+    // case DIR_FAR:
+    //   Serial.println("FAR");
+    //   break;
     default:
       Serial.println("NONE");
     }
@@ -299,7 +288,7 @@ void getbtstring(){
     char datachar = (char)btSerial.read();
     if(data.length() == 6) 
     {
-      btserialFlush();
+      // btserialFlush();
       Serial.println("6개라서 끊어준다");
       break;
     }

@@ -10,6 +10,7 @@
 
 boolean LightState = false;        //전원 여부 판단
 int ColorState = 1;                  //0 = red, 1 = white, 2 = green , 3 = blue
+int brightness = 10;                 //네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 
 
