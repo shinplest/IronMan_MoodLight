@@ -1,58 +1,16 @@
-/*-
-Basic Code Structure
-=====블루투스 연결되었을 경우 
-문자 데이터 수신
-O, X (Turn on, Turn off)
-컬러퍽커 값 받아옴 색바꾸고
-밝기 값 전송 변화
-여러가지 신기한 모드 지원(레인보우 등등 )
-=====블루투스 연결되지 않았을 경우
-->제스쳐 센서 동작
-제스쳐 각각의 경우에 따라, 함수 작성 
-1. 오른쪽
--> 색 변경
-2. 왼쪽
-->이전 색상
-3. 위
--> 볼륨 업
-4. 아래
-->볼륨 다운
-*/
-
-/****************************************************************
-https://github.com/sparkfun/APDS-9960_RGB_and_Gesture_Sensor
-IMPORTANT: The APDS-9960 can only accept 3.3V!
- 
- Arduino Pin  APDS-9960 Board  Function
- 
- 3.3V         VCC              Power
- GND          GND              Ground
- A4           SDA              I2C Data
- A5           SCL              I2C Clock
- 2            INT              Interrupt
-*/
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include <Arduino.h>
+#include "bluetooth.h"
+#include "gesture.h"
 //블루투스 관련 선언
-#include <SoftwareSerial.h>
-int Tx = 6; //전송
-int Rx = 7; //수신
-SoftwareSerial btSerial(Tx, Rx);
 String data = "";
-
 void getbtstring();
 void bluetoothonoff();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //제스쳐관련 선언
-#include <Wire.h>
-#include <SparkFun_APDS9960.h>
-#define APDS9960_INT 2 // Needs to be an interrupt pin
-SparkFun_APDS9960 apds = SparkFun_APDS9960();
 int isr_flag = 0;
-
 void interruptRoutine();
 void handleGesture();
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀관련 선언
 #include <Adafruit_NeoPixel.h>
