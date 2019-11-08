@@ -93,7 +93,15 @@ void btserialFlush(){
   while(btSerial.available() > 0) {
     char t = btSerial.read();
   }
-}   
+} 
+
+
+///
+void turnbacklight(){
+  lcd.backlight();     // 백라이트 켜기
+  delay(2000);
+  lcd.noBacklight(); // turn off backlight
+}
 
 
 
@@ -122,11 +130,14 @@ void setup()
   //////////////////////////////////////////////////////////////////////
   lcd.init(); // LCD 초기화
   // Print a message to the LCD.
-  // lcd.backlight();     // 백라이트 켜기
+ 
   lcd.setCursor(0, 0); // 1번째, 1라인
   lcd.print("2019-10-17 01:18");
   lcd.setCursor(0, 1); // 1번째, 2라인
   lcd.print("MISE MUNG:200ppm");
+
+  turnbacklight();
+  
   //////////////////////////////////////////////////////////////////////
   strip.setBrightness(brightness);
   strip.begin(); // 네오픽셀 제어 시작
@@ -330,12 +341,14 @@ void handleGesture()
         ChangeColor();
       }
       break;
-    // case DIR_NEAR:
-    //   Serial.println("NEAR");
-    //   break;
-    // case DIR_FAR:
-    //   Serial.println("FAR");
-    //   break;
+    case DIR_NEAR:
+      Serial.println("NEAR");
+      turnbacklight();
+      break;
+    case DIR_FAR:
+      Serial.println("FAR");
+      turnbacklight();
+      break;
     default:
       Serial.println("NONE");
     }
