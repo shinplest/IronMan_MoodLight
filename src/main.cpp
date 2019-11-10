@@ -66,12 +66,19 @@ void setup()
   {
     Serial.println(F("Something went wrong during gesture sensor init!"));
   }
+  lcd.init();
 }
 
 
 void loop()
 {
   
+  int Register = analogRead(A0);
+  if( Register>300 && Register<500){
+    lcd.init();
+  }
+
+
   lcd.setCursor(0, 0); // 1번째, 2라인
   lcd.print("Gesture Running");
   lcd.setCursor(0, 1); // 1번째, 2라인
