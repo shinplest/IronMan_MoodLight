@@ -9,8 +9,6 @@
 #include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
 LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
-
-
 //전역변수
 int turn = 0;
 int VolumeState = 0;
@@ -41,7 +39,7 @@ void setup()
   lcd.setCursor(0, 1); // 1번째, 2라인
   lcd.print("Gesture Sensor..");
 
-  randomSeed(analogRead(0)); //랜덤시드
+  randomSeed(analogRead(0)); //랜덤시드 for gestrue light changing system
 
   strip.setBrightness(brightness);
   strip.begin();
@@ -71,41 +69,39 @@ void setup()
   }
   lcd.init();
 }
+int VoRaw;
+float Vo;
 
 void loop()
 {
-  digitalWrite(sharpLEDPin, LOW);
-  delayMicroseconds(280);
-  int VoRaw = analogRead(sharpVoPin);
-  digitalWrite(sharpLEDPin, HIGH);
-  delayMicroseconds(9620);
-  
-  float Vo = VoRaw;
-  VoRawTotal += VoRaw;
-  VoRawCount++;
-  if ( VoRawCount >= N ) {
-    Vo = 1.0 * VoRawTotal / N;
-    VoRawCount = 0;
-    VoRawTotal = 0;
-  } else {
-    return;
+  while (VoRawCount <= N)
+  {
+    digitalWrite(sharpLEDPin, LOW);
+    delayMicroseconds(280);
+    VoRaw = analogRead(sharpVoPin);
+    digitalWrite(sharpLEDPin, HIGH);
+    delayMicroseconds(9620);
+    VoRawTotal += VoRaw;
+    VoRawCount++;
   }
+  Vo = 1.0 * VoRawTotal / N;
+  VoRawCount = 0;
+  VoRawTotal = 0;
 
   // Compute the output voltage in Volts.
   Vo = Vo / 1024.0 * 5.0;
-  printFValue("Vo", Vo*1000.0, "mV");
+  printFValue("Vo", Vo * 1000.0, "mV");
 
   // Convert to Dust Density in units of ug/m3.
   float dV = Vo - Voc;
-  if ( dV < 0 ) {
+  if (dV < 0)
+  {
     dV = 0;
     Voc = Vo;
   }
   float dustDensity = dV / K * 100.0;
   printFValue("DustDensity", dustDensity, "ug/m3", true);
   Serial.println("");
-
-
 
   // int Register = analogRead(A0);
   // if( Register>300 && Register<500){
