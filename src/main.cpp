@@ -69,70 +69,43 @@ void setup()
   }
   lcd.init();
 }
-int VoRaw;
-float Vo;
+
 
 void loop()
 {
-  while (VoRawCount <= N)
-  {
-    digitalWrite(sharpLEDPin, LOW);
-    delayMicroseconds(280);
-    VoRaw = analogRead(sharpVoPin);
-    digitalWrite(sharpLEDPin, HIGH);
-    delayMicroseconds(9620);
-    VoRawTotal += VoRaw;
-    VoRawCount++;
+  if(turn % 10 == 0){
+    CalculatDust();
   }
-  Vo = 1.0 * VoRawTotal / N;
-  VoRawCount = 0;
-  VoRawTotal = 0;
-
-  // Compute the output voltage in Volts.
-  Vo = Vo / 1024.0 * 5.0;
-  printFValue("Vo", Vo * 1000.0, "mV");
-
-  // Convert to Dust Density in units of ug/m3.
-  float dV = Vo - Voc;
-  if (dV < 0)
-  {
-    dV = 0;
-    Voc = Vo;
+  int Register = analogRead(A0);
+  if( Register>300 && Register<500){
+    lcd.init();
   }
-  float dustDensity = dV / K * 100.0;
-  printFValue("DustDensity", dustDensity, "ug/m3", true);
-  Serial.println("");
 
-  // int Register = analogRead(A0);
-  // if( Register>300 && Register<500){
-  //   lcd.init();
-  // }
+  lcd.setCursor(0, 0); // 1번째, 2라인
+  lcd.print("Gesture Running");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print(turn);
+  turn++;
 
-  // lcd.setCursor(0, 0); // 1번째, 2라인
-  // lcd.print("Gesture Running");
-  // lcd.setCursor(0, 1); // 1번째, 2라인
-  // lcd.print(turn);
-  // turn++;
+  if (isr_flag == 1)
+  {
+    detachInterrupt(0);
+    handleGesture();
+    isr_flag = 0;
+    attachInterrupt(0, interruptRoutine, FALLING);
+  }
+  getbtstring();
+  bluetoothonoff();
 
-  // if (isr_flag == 1)
-  // {
-  //   detachInterrupt(0);
-  //   handleGesture();
-  //   isr_flag = 0;
-  //   attachInterrupt(0, interruptRoutine, FALLING);
-  // }
-  // getbtstring();
-  // bluetoothonoff();
+  if(VolumeState == 4){
+     //whiteOverRainbow(102, 2);
+     rainbowFade2White(3,3,0);
+  }
 
-  // if(VolumeState == 4){
-  //    //whiteOverRainbow(102, 2);
-  //    rainbowFade2White(3,3,0);
-  // }
-
-  // if(LightState == false){
-  //   pulseWhite(5);
-  //   //whiteOverRainbow(100, 2);
-  // }
+  if(LightState == false){
+    pulseWhite(5);
+    //whiteOverRainbow(100, 2);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
