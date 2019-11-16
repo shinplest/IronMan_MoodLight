@@ -10,41 +10,6 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
 
-// Arduino pin numbers.
-const int sharpLEDPin = 8;   // Arduino digital pin 7 connect to sensor LED.
-const int sharpVoPin = A1;   // Arduino analog pin 5 connect to sensor Vo.
-
-#define N 100
-static unsigned long VoRawTotal = 0;
-static int VoRawCount = 0;
-
-
-// Set the typical output voltage in Volts when there is zero dust. 
-static float Voc = 0.6;
-
-// Use the typical sensitivity in units of V per 100ug/m3.
-const float K = 0.5;
-  
-/////////////////////////////////////////////////////////////////////////////
-
-// Helper functions to print a data value to the serial monitor.
-void printValue(String text, unsigned int value, bool isLast = false) {
-  Serial.print(text);
-  Serial.print("=");
-  Serial.print(value);
-  if (!isLast) {
-    Serial.print(", ");
-  }
-}
-void printFValue(String text, float value, String units, bool isLast = false) {
-  Serial.print(text);
-  Serial.print("=");
-  Serial.print(value);
-  Serial.print(units);
-  if (!isLast) {
-    Serial.print(", ");
-  }
-}
 
 //전역변수
 int turn = 0;
