@@ -1,15 +1,44 @@
+//자동정렬 shift + alt + f
+
 #include <Arduino.h>
 #include "bluetooth.h"
 #include "gesture.h"
 #include "neopixel.h"
+#include "dustsensor.h"
 
 #include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
 LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Helper functions to print a data value to the serial monitor.
+void printValue(String text, unsigned int value, bool isLast = false)
+{
+  Serial.print(text);
+  Serial.print("=");
+  Serial.print(value);
+  if (!isLast)
+  {
+    Serial.print(", ");
+  }
+}
+void printFValue(String text, float value, String units, bool isLast = false)
+{
+  Serial.print(text);
+  Serial.print("=");
+  Serial.print(value);
+  Serial.print(units);
+  if (!isLast)
+  {
+    Serial.print(", ");
+  }
+}
+
 //전역변수
 int turn = 0;
-int VolumeState= 0;
+int VolumeState = 0;
 
 //블루투스 관련 선언
 String data = "";
@@ -20,18 +49,16 @@ void btserialFlush();
 //제스쳐관련 선언
 void handleGesture();
 
-//네오픽셀관련 선언     
+//네오픽셀관련 선언
 void ChangeColor();
 void TurnOnLight();
 void TurnOffLight();
-
-
 
 void setup()
 {
   btSerial.begin(9600);
   Serial.begin(9600);
-  
+
   lcd.init(); // LCD 초기화
   lcd.backlight();
   lcd.setCursor(0, 0); // 1번째, 1라인
@@ -39,12 +66,12 @@ void setup()
   lcd.setCursor(0, 1); // 1번째, 2라인
   lcd.print("Gesture Sensor..");
 
-  randomSeed(analogRead(0));  //랜덤시드
-  
+  randomSeed(analogRead(0)); //랜덤시드
+
   strip.setBrightness(brightness);
   strip.begin();
   strip.show();
-  
+
   pinMode(APDS9960_INT, INPUT);
 
   attachInterrupt(0, interruptRoutine, FALLING);
@@ -69,22 +96,20 @@ void setup()
   lcd.init();
 }
 
-
 void loop()
 {
-  
+ 
   int Register = analogRead(A0);
   if( Register>300 && Register<500){
     lcd.init();
   }
-
 
   lcd.setCursor(0, 0); // 1번째, 2라인
   lcd.print("Gesture Running");
   lcd.setCursor(0, 1); // 1번째, 2라인
   lcd.print(turn);
   turn++;
-  
+
   if (isr_flag == 1)
   {
     detachInterrupt(0);
@@ -106,11 +131,8 @@ void loop()
   }
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //네오픽셀 함수
-
 
 void ChangeColor()
 {
@@ -127,49 +149,49 @@ void ChangeColor()
 
 void TurnOnLight()
 {
-   if (LightState == false) //꺼져있을때만 점등
-      {
-        strip.begin();
-        for (int i = 0; i < 24; i++)
-        {
-          strip.setPixelColor(i, 0, 0, 0, 255); //점등
-          strip.show();
-          delay(150);
-        }
-        LightState = true; //불 켜져 있음 표시
-        Serial.println("불이 켜져있습니다.");
-      }
-      else
-      {
-        if (brightness < 127.5)
-        {
-          brightness += 127.5;
-          strip.setBrightness(brightness);
-          strip.show();
-        }
-      }
+  if (LightState == false) //꺼져있을때만 점등
+  {
+    strip.begin();
+    for (int i = 0; i < 24; i++)
+    {
+      strip.setPixelColor(i, 0, 0, 0, 255); //점등
+      strip.show();
+      delay(150);
+    }
+    LightState = true; //불 켜져 있음 표시
+    Serial.println("불이 켜져있습니다.");
+  }
+  else
+  {
+    if (brightness < 127.5)
+    {
+      brightness += 127.5;
+      strip.setBrightness(brightness);
+      strip.show();
+    }
+  }
 }
 
 void TurnOffLight()
 {
   if (brightness >= 127.5 && LightState == true)
-      {
-        brightness -= 127.5;
-        strip.setBrightness(brightness);
-        strip.show();
-      }
-      else
-      {
-        for (int i = 0; i < 24; i++)
-        {
-          strip.setPixelColor(i, 0, 0, 0, 0); // 소등
-          strip.show();
-          delay(50);
-        }
-        LightState = false;
-        Serial.println("불이 꺼졌습니다.");
-        ColorState = 1; //기본 스테이지로 초기화.
-      }
+  {
+    brightness -= 127.5;
+    strip.setBrightness(brightness);
+    strip.show();
+  }
+  else
+  {
+    for (int i = 0; i < 24; i++)
+    {
+      strip.setPixelColor(i, 0, 0, 0, 0); // 소등
+      strip.show();
+      delay(50);
+    }
+    LightState = false;
+    Serial.println("불이 꺼졌습니다.");
+    ColorState = 1; //기본 스테이지로 초기화.
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,8 +204,11 @@ void handleGesture()
     switch (apds.readGesture())
     {
     case DIR_UP:
-      if(VolumeState == 4){
-      } else{
+      if (VolumeState == 4)
+      {
+      }
+      else
+      {
         Serial.println("UP");
         TurnOnLight();
         VolumeState++;
@@ -219,20 +244,22 @@ void handleGesture()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //블루투스 함수
 
-void getbtstring(){
-  while(btSerial.available()) {
+void getbtstring()
+{
+  while (btSerial.available())
+  {
     char datachar = (char)btSerial.read();
-    if(data.length() == 6) 
+    if (data.length() == 6)
     {
       // btserialFlush();
       Serial.println("6개라서 끊어준다");
       break;
     }
-    if(datachar == 13)          // /n 과 라인체인지값 빼준다. 
+    if (datachar == 13) // /n 과 라인체인지값 빼준다.
     {
       continue;
     }
-    if(datachar == 10)
+    if (datachar == 10)
     {
       continue;
     }
@@ -243,18 +270,19 @@ void getbtstring(){
   delay(300);
 }
 
-void bluetoothonoff(){
-  if(!data.equals(""))  //myString 값이 있다면
+void bluetoothonoff()
+{
+  if (!data.equals("")) //myString 값이 있다면
   {
-    if(data == "on")
+    if (data == "on")
     {
       TurnOnLight();
     }
-    else if(data == "off")
+    else if (data == "off")
     {
       TurnOffLight();
     }
-    else                    //색 정보 보내줬을 경우
+    else //색 정보 보내줬을 경우
     {
       String red = data.substring(0, 2);
       String green = data.substring(2, 4);
@@ -277,7 +305,7 @@ void bluetoothonoff(){
 
       colorWipe(strip.Color(rhex, ghex, bhex, 0), 0);
     }
-    data="";  //myString 변수값 초기화
+    data = ""; //myString 변수값 초기화
   }
 }
 
@@ -285,6 +313,4 @@ void bluetoothonoff(){
 //   while(btSerial.available() > 0) {
 //     char t = btSerial.read();
 //   }
-// } 
-
-
+// }
