@@ -36,9 +36,26 @@ void setup()
   lcd.init(); // LCD 초기화
   lcd.backlight();
   lcd.setCursor(0, 0); // 1번째, 1라인
+  lcd.print("PROOF THAT STARK");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print("  HAS A HEART");
+  delay(2500);
+
+  lcd.init(); // LCD 초기화
+  lcd.backlight();
+  lcd.setCursor(0, 0); // 1번째, 1라인
   lcd.print("Turning On");
   lcd.setCursor(0, 1); // 1번째, 2라인
   lcd.print("Gesture Sensor..");
+  delay(1000);
+
+  lcd.init(); // LCD 초기화
+  lcd.backlight();
+  lcd.setCursor(0, 0); // 1번째, 1라인
+  lcd.print("Turning On");
+  lcd.setCursor(0, 1); // 1번째, 2라인
+  lcd.print("dust Sensor..");
+  delay(1000);
 
   randomSeed(analogRead(0)); //랜덤시드 for gestrue light changing system
 
@@ -75,6 +92,7 @@ void setup()
 void loop()
 {
   
+  
   int Register = digitalRead(A0);
   if(lcdflag == 0 && Register == 1)
   lcd.init();
@@ -85,18 +103,20 @@ void loop()
     lcdflag = 1;
   }
   
-  if(turn % 10 == 5){
-    lcd.setCursor(0, 1); // 1번째, 2라인
+  if(turn % 5 == 4){
+    lcd.setCursor(0, 1); 
     lcd.print("dust");
-    lcd.setCursor(5, 1); // 1번째, 2라인
+    lcd.setCursor(5, 1); 
     lcd.print(':');
-    lcd.setCursor(8, 1); // 1번째, 2라인
+    lcd.setCursor(8, 1); 
     lcd.print(CalculatDust());
+    lcd.setCursor(14, 1); 
+    lcd.print("ym");
   } 
 
-  lcd.setCursor(0, 0); // 1번째, 2라인
+  lcd.setCursor(0, 0);
   lcd.print("Gesture Running");
-  lcd.setCursor(15, 0); // 1번째, 2라인
+  lcd.setCursor(15, 0); 
   if(turn % 2 == 0)
   lcd.print(".");
   else

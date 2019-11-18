@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-#define N 30
+#define N 10
 
 const int sharpLEDPin = 8;
 const int sharpVoPin = A1;
@@ -66,7 +66,10 @@ float CalculatDust()
     float dustDensity = dV / K * 100.0;
     printFValue("DustDensity", dustDensity, "ug/m3", true);
     Serial.println("");
-    return dustDensity;
+    int dust = (int)(dustDensity - 70);
+    if (dust < 0)
+    dust = 0;
+    return dust;
 }
 
 #endif
