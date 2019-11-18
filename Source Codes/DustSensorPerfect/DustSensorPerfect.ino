@@ -24,7 +24,7 @@ const int sharpVoPin = A1;   // Arduino analog pin 5 connect to sensor Vo.
 
 // For averaging last N raw voltage readings.
 #ifdef USE_AVG
-#define N 100
+#define N 10
 static unsigned long VoRawTotal = 0;
 static int VoRawCount = 0;
 #endif // USE_AVG

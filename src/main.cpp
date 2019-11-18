@@ -12,6 +12,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
 //전역변수
 int turn = 0;
 int VolumeState = 0;
+int lcdflag = 0;
 
 //블루투스 관련 선언
 String data = "";
@@ -73,19 +74,33 @@ void setup()
 
 void loop()
 {
-  int Register = analogRead(A0);
-     if( Register>300 && Register<500){
-    lcd.init();
+  
+  int Register = digitalRead(A0);
+  if(lcdflag == 0 && Register == 1)
+  lcd.init();
+  Serial.println(Register);
+  if(Register == 0){
+    lcdflag = 0;
+  }else{
+    lcdflag = 1;
   }
-  if(turn % 10 == 0){
+  
+  if(turn % 10 == 5){
     lcd.setCursor(0, 1); // 1번째, 2라인
+    lcd.print("dust");
+    lcd.setCursor(5, 1); // 1번째, 2라인
+    lcd.print(':');
+    lcd.setCursor(8, 1); // 1번째, 2라인
     lcd.print(CalculatDust());
   } 
 
   lcd.setCursor(0, 0); // 1번째, 2라인
   lcd.print("Gesture Running");
-  lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print(turn);
+  lcd.setCursor(15, 0); // 1번째, 2라인
+  if(turn % 2 == 0)
+  lcd.print(".");
+  else
+  lcd.print(" ");
   turn++;
 
   if (isr_flag == 1)
@@ -104,7 +119,7 @@ void loop()
   }
 
   if(LightState == false){
-    pulseWhite(5);
+    pulseWhite(4);
     //whiteOverRainbow(100, 2);
   }
 }
@@ -188,21 +203,29 @@ void handleGesture()
       else
       {
         Serial.println("UP");
+        lcd.setCursor(15, 0); // 1번째, 2라인
+        lcd.print('+');
         TurnOnLight();
         VolumeState++;
       }
       break;
     case DIR_DOWN:
+      lcd.setCursor(15, 0); // 1번째, 2라인
+      lcd.print('-');
       TurnOffLight();
       VolumeState--;
       break;
     case DIR_LEFT:
       Serial.println("LEFT");
+      lcd.setCursor(15, 0); // 1번째, 2라인
+        lcd.print('<');
       ColorState--;
       ChangeColor();
       break;
     case DIR_RIGHT:
       Serial.println("RIGHT");
+      lcd.setCursor(15, 0); // 1번째, 2라인
+        lcd.print('>');
       ColorState++;
       ChangeColor();
       break;

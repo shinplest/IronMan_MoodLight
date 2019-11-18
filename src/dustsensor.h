@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-#define N 50
+#define N 30
 
 const int sharpLEDPin = 8;
 const int sharpVoPin = A1;
