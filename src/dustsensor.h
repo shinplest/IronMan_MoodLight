@@ -36,7 +36,7 @@ void printFValue(String text, float value, String units, bool isLast = false)
     }
 }
 
-void CalculatDust()
+float CalculatDust()
 {
     while (VoRawCount <= N)
     {
@@ -66,6 +66,7 @@ void CalculatDust()
     float dustDensity = dV / K * 100.0;
     printFValue("DustDensity", dustDensity, "ug/m3", true);
     Serial.println("");
+    return dustDensity;
 }
 
 #endif

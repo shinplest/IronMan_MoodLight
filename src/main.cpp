@@ -73,13 +73,14 @@ void setup()
 
 void loop()
 {
-  if(turn % 10 == 0){
-    CalculatDust();
-  }
   int Register = analogRead(A0);
-  if( Register>300 && Register<500){
+     if( Register>300 && Register<500){
     lcd.init();
   }
+  if(turn % 10 == 0){
+    lcd.setCursor(0, 1); // 1번째, 2라인
+    lcd.print(CalculatDust());
+  } 
 
   lcd.setCursor(0, 0); // 1번째, 2라인
   lcd.print("Gesture Running");
@@ -191,7 +192,6 @@ void handleGesture()
         VolumeState++;
       }
       break;
-
     case DIR_DOWN:
       TurnOffLight();
       VolumeState--;
