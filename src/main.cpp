@@ -5,14 +5,11 @@
 #include "gesture.h"
 #include "neopixel.h"
 #include "dustsensor.h"
-
-#include <LiquidCrystal_I2C.h>      //LiquidCrystal 라이브러리 추가
-LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
+#include "lcd.h"
 
 //전역변수
 int turn = 0;
 int VolumeState = 0;
-int lcdflag = 0;
 
 //블루투스 관련 선언
 String data = "";
@@ -54,7 +51,7 @@ void setup()
   lcd.setCursor(0, 0); // 1번째, 1라인
   lcd.print("Turning On");
   lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("dust Sensor..");
+  lcd.print("Dust Sensor..");
   delay(1000);
 
   randomSeed(analogRead(0)); //랜덤시드 for gestrue light changing system
@@ -91,38 +88,49 @@ void setup()
 
 void loop()
 {
-  
-  
-  int Register = digitalRead(A0);
-  if(lcdflag == 0 && Register == 1)
-  lcd.init();
-  Serial.println(Register);
-  if(Register == 0){
-    lcdflag = 0;
-  }else{
-    lcdflag = 1;
+  //불이 꺼져있을 경우 연결 요청을 하는 사인을 내보냄
+  if(LightState == false){
+    //whiteOverRainbow(100, 2);
+    if(turn % 2 == 0){
+      printGestureRunning();
+      if(turn % 2 == 0)
+        lcd.print(".");
+      else
+        lcd.print(" ");
+    }
+    else{
+      printBluetoothOkay();
+      if(turn % 2 == 0)
+        lcd.print(".");
+      else
+        lcd.print(" ");
+    }
+    lcd.setCursor(0, 1);
+    lcd.print(" Turn On Light.");
+    pulseWhite(4);
   }
   
-  if(turn % 5 == 4){
-    lcd.setCursor(0, 1); 
-    lcd.print("dust");
-    lcd.setCursor(5, 1); 
-    lcd.print(':');
-    lcd.setCursor(8, 1); 
-    lcd.print(CalculatDust());
-    lcd.setCursor(14, 1); 
-    lcd.print("ym");
-  } 
+  //레지스터의 값에 따라 LCD가 종료되었다 켜지면, 다시 초기화를 시켜줌
+  UpdateLCDbyRegister();
+  
+ //켜져있는 경우, 미세먼지를 계속 계산해줌
+  if(LightState == true)
+  {
+    printGestureRunning();
+    //7번주기로, 미세먼지 계산해줌
+    if(turn % 7 == 6){
+      lcd.setCursor(0, 1); 
+      lcd.print("dust");
+      lcd.setCursor(5, 1); 
+      lcd.print(':');
+      lcd.setCursor(8, 1); 
+      lcd.print(CalculatDust());
+      lcd.setCursor(14, 1); 
+      lcd.print("ym");
+    }
+  }
 
-  lcd.setCursor(0, 0);
-  lcd.print("Gesture Running");
-  lcd.setCursor(15, 0); 
-  if(turn % 2 == 0)
-  lcd.print(".");
-  else
-  lcd.print(" ");
-  turn++;
-
+//제스쳐 인터럽트 하는 부분, 중요. 
   if (isr_flag == 1)
   {
     detachInterrupt(0);
@@ -133,15 +141,14 @@ void loop()
   getbtstring();
   bluetoothonoff();
 
+//모드 기능, 이스터에그, 4번이상 up할경우 특수 디자인 나옴
   if(VolumeState == 4){
      //whiteOverRainbow(102, 2);
      rainbowFade2White(3,3,0);
   }
 
-  if(LightState == false){
-    pulseWhite(4);
-    //whiteOverRainbow(100, 2);
-  }
+//매 회마다 turn을 늘려줌으로써, 계속 실행될 필요 없는 함수들 간격두고 실행
+  turn++;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +172,8 @@ void TurnOnLight()
   if (LightState == false) //꺼져있을때만 점등
   {
     strip.begin();
+    //이전 lcd 초기화해줌
+    lcd.clear();
     for (int i = 0; i < 24; i++)
     {
       strip.setPixelColor(i, 0, 0, 0, 255); //점등
