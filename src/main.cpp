@@ -213,6 +213,7 @@ void TurnOffLight()
     LightState = false;
     Serial.println("불이 꺼졌습니다.");
     ColorState = 1; //기본 스테이지로 초기화.
+    lcd.clear();
   }
 }
 
@@ -239,9 +240,14 @@ void handleGesture()
       }
       break;
     case DIR_DOWN:
+      if(VolumeState == 0){}
       lcd.setCursor(15, 0); // 1번째, 2라인
       lcd.print('-');
       TurnOffLight();
+      if(VolumeState == 4){
+        VolumeState -= 4;
+        TurnOffLight();
+      }
       VolumeState--;
       break;
     case DIR_LEFT:
