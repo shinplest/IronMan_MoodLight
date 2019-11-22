@@ -86,7 +86,9 @@ void setup()
 }
 
 void loop()
-{
+{  
+  btSerial.write("this");
+
   //불이 꺼져있을 경우 연결 요청을 하는 사인을 내보냄
   if (LightState == false)
   {
@@ -131,6 +133,7 @@ void loop()
       lcd.print(CurrentDust);
       lcd.setCursor(14, 1);
       lcd.print("ym");
+      btSerial.write("this");
     }
   }
 
@@ -330,6 +333,14 @@ void handleGesture()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //블루투스 함수
 
+void btserialFlush()
+{
+  while (btSerial.available() > 0)
+  {
+    char t = btSerial.read();
+  }
+}
+
 void getbtstring()
 {
   while (btSerial.available())
@@ -395,9 +406,6 @@ void bluetoothonoff()
         char b[3];
         blue.toCharArray(b, 3);
 
-        Serial.println(r);
-        Serial.println(g);
-        Serial.println(b);
 
         int rhex = strtol(r, NULL, 16);
         int ghex = strtol(g, NULL, 16);
@@ -410,10 +418,4 @@ void bluetoothonoff()
   }
 }
 
-void btserialFlush()
-{
-  while (btSerial.available() > 0)
-  {
-    char t = btSerial.read();
-  }
-}
+
