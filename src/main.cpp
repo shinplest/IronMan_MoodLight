@@ -87,7 +87,6 @@ void setup()
 
 void loop()
 {  
-  btSerial.write("this");
 
   //불이 꺼져있을 경우 연결 요청을 하는 사인을 내보냄
   if (LightState == false)
@@ -133,7 +132,11 @@ void loop()
       lcd.print(CurrentDust);
       lcd.setCursor(14, 1);
       lcd.print("ym");
-      btSerial.write("this");
+      char buffer[10];
+      String strdust = (String)dtostrf(CurrentDust, 1, 3, buffer);
+      strcat(buffer, "\r\n");
+      Serial.println(buffer);
+      btSerial.write(buffer);
     }
   }
 
