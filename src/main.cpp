@@ -140,15 +140,15 @@ void loop()
   {
     if (0 <= CurrentDust && CurrentDust < 50)
     {
-      ChangeColor();
+      colorWipe(strip.Color(0, 255, 0, 0), 30);
     }
     else if (50 <= CurrentDust && CurrentDust < 100)
     {
-      ChangeColor();
+      colorWipe(strip.Color(255, 255, 0, 0), 30);
     }
     else
     {
-      ChangeColor();
+      colorWipe(strip.Color(255, 0, 0, 0), 30);
     }
     if (isr_flag == 1)
     {
@@ -160,9 +160,25 @@ void loop()
     getbtstring();
     bluetoothonoff();
   }
+  //라이트모드가 랜덤인 경우 
+  if(LightMode == RANDOMMODE)
+  {
+    ChangeColor();
+    if (isr_flag == 1)
+    {
+      detachInterrupt(0);
+      handleGesture();
+      isr_flag = 0;
+      attachInterrupt(0, interruptRoutine, FALLING);
+    }
+    getbtstring();
+    bluetoothonoff();
+  }
+
+
   //라이트모드가 GENERALMODE일 경우
   //제스쳐 인터럽트와 블루투스 인터럽트 발생
-  else
+  if(LightMode == GENERALMODE)
   {
     //제스쳐 인터럽트
     if (isr_flag == 1)
@@ -247,7 +263,6 @@ void TurnOffLight()
     }
     LightState = false;
     Serial.println("불이 꺼졌습니다.");
-    ColorState = 1; //기본 스테이지로 초기화.
     lcd.clear();
   }
 }
@@ -292,14 +307,12 @@ void handleGesture()
       Serial.println("LEFT");
       lcd.setCursor(15, 0); // 1번째, 2라인
       lcd.print('<');
-      ColorState--;
       ChangeColor();
       break;
     case DIR_RIGHT:
       Serial.println("RIGHT");
       lcd.setCursor(15, 0); // 1번째, 2라인
       lcd.print('>');
-      ColorState++;
       ChangeColor();
       break;
     // case DIR_NEAR:
@@ -355,13 +368,17 @@ void bluetoothonoff()
     {
       TurnOffLight();
     }
-    else if (data == "change" && LightMode == 0)
+    else if (data == "gen")
     {
-      LightMode = 1;
+      LightMode = GENERALMODE;
     }
-    else if (data == "change" && LightMode == 1)
+    else if (data == "dus")
     {
-      LightMode = 0;
+      LightMode = DUSTMODE;
+    }
+    else if (data == "ran")
+    {
+      LightMode = RANDOMMODE;
     }
     else //색 정보 보내줬을 경우
     {

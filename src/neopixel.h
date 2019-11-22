@@ -10,15 +10,14 @@
 
 #define GENERALMODE 0
 #define DUSTMODE 1
+#define RANDOMMODE 2
 
 boolean LightState = false;        //전원 여부 판단
-int ColorState = 1;                  //0 = red, 1 = white, 2 = green , 3 = blue
 int brightness = 127.5;                 //네오픽셀 밝기 설정 0(어두움) ~ 255(밝음)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRBW + NEO_KHZ800);
 int LightMode = GENERALMODE;
 
 
-void colorWipe(uint32_t c, uint8_t wait);
 void colorWipe(uint32_t c, uint8_t wait)
 {
   for (uint16_t i = 0; i < strip.numPixels(); i++)
