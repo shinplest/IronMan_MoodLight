@@ -120,9 +120,9 @@ void loop()
   {
     printGestureRunning();
     //7번주기로, 미세먼지 계산해줌
-    CurrentDust = CalculatDust();
     if (turn % 7 == 6)
     {
+      CurrentDust = CalculatDust();
       lcd.setCursor(0, 1);
       lcd.print("dust");
       lcd.setCursor(5, 1);
@@ -140,12 +140,15 @@ void loop()
   {
     if (0 <= CurrentDust && CurrentDust < 50)
     {
+      ChangeColor();
     }
-    else if (50 <= CurrentDust < 100)
+    else if (50 <= CurrentDust && CurrentDust < 100)
     {
+      ChangeColor();
     }
     else
     {
+      ChangeColor();
     }
     if (isr_flag == 1)
     {
@@ -161,7 +164,7 @@ void loop()
   //제스쳐 인터럽트와 블루투스 인터럽트 발생
   else
   {
-    //제스쳐 인터럽트 
+    //제스쳐 인터럽트
     if (isr_flag == 1)
     {
       detachInterrupt(0);
@@ -321,7 +324,7 @@ void getbtstring()
     char datachar = (char)btSerial.read();
     if (data.length() == 6)
     {
-      // btserialFlush();
+      btserialFlush();
       Serial.println("6개라서 끊어준다");
       break;
     }
@@ -352,35 +355,48 @@ void bluetoothonoff()
     {
       TurnOffLight();
     }
+    else if (data == "change" && LightMode == 0)
+    {
+      LightMode = 1;
+    }
+    else if (data == "change" && LightMode == 1)
+    {
+      LightMode = 0;
+    }
     else //색 정보 보내줬을 경우
     {
-      String red = data.substring(0, 2);
-      String green = data.substring(2, 4);
-      String blue = data.substring(4, 6);
+      if (LightState == true)
+      {
+        String red = data.substring(0, 2);
+        String green = data.substring(2, 4);
+        String blue = data.substring(4, 6);
 
-      char r[3];
-      red.toCharArray(r, 3);
-      char g[3];
-      green.toCharArray(g, 3);
-      char b[3];
-      blue.toCharArray(b, 3);
+        char r[3];
+        red.toCharArray(r, 3);
+        char g[3];
+        green.toCharArray(g, 3);
+        char b[3];
+        blue.toCharArray(b, 3);
 
-      Serial.println(r);
-      Serial.println(g);
-      Serial.println(b);
+        Serial.println(r);
+        Serial.println(g);
+        Serial.println(b);
 
-      int rhex = strtol(r, NULL, 16);
-      int ghex = strtol(g, NULL, 16);
-      int bhex = strtol(b, NULL, 16);
+        int rhex = strtol(r, NULL, 16);
+        int ghex = strtol(g, NULL, 16);
+        int bhex = strtol(b, NULL, 16);
 
-      colorWipe(strip.Color(rhex, ghex, bhex, 0), 0);
+        colorWipe(strip.Color(rhex, ghex, bhex, 0), 10);
+      }
     }
     data = ""; //myString 변수값 초기화
   }
 }
 
-// void btserialFlush(){
-//   while(btSerial.available() > 0) {
-//     char t = btSerial.read();
-//   }
-// }
+void btserialFlush()
+{
+  while (btSerial.available() > 0)
+  {
+    char t = btSerial.read();
+  }
+}
