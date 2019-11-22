@@ -85,22 +85,24 @@ void setup()
   lcd.init();
 }
 
-
 void loop()
 {
   //불이 꺼져있을 경우 연결 요청을 하는 사인을 내보냄
-  if(LightState == false){
+  if (LightState == false)
+  {
     //whiteOverRainbow(100, 2);
-    if(turn % 2 == 0){
+    if (turn % 2 == 0)
+    {
       printGestureRunning();
-      if(turn % 2 == 0)
+      if (turn % 2 == 0)
         lcd.print(".");
       else
         lcd.print(" ");
     }
-    else{
+    else
+    {
       printBluetoothOkay();
-      if(turn % 2 == 0)
+      if (turn % 2 == 0)
         lcd.print(".");
       else
         lcd.print(" ");
@@ -109,45 +111,75 @@ void loop()
     lcd.print(" Turn On Light.");
     pulseWhite(4);
   }
-  
+
   //레지스터의 값에 따라 LCD가 종료되었다 켜지면, 다시 초기화를 시켜줌
   UpdateLCDbyRegister();
-  
- //켜져있는 경우, 미세먼지를 계속 계산해줌
-  if(LightState == true)
+
+  //켜져있는 경우, 미세먼지를 계속 계산해줌
+  if (LightState == true)
   {
     printGestureRunning();
     //7번주기로, 미세먼지 계산해줌
-    if(turn % 7 == 6){
-      lcd.setCursor(0, 1); 
+    CurrentDust = CalculatDust();
+    if (turn % 7 == 6)
+    {
+      lcd.setCursor(0, 1);
       lcd.print("dust");
-      lcd.setCursor(5, 1); 
+      lcd.setCursor(5, 1);
       lcd.print(':');
-      lcd.setCursor(8, 1); 
-      lcd.print(CalculatDust());
-      lcd.setCursor(14, 1); 
+      lcd.setCursor(8, 1);
+      lcd.print(CurrentDust);
+      lcd.setCursor(14, 1);
       lcd.print("ym");
     }
   }
 
-//제스쳐 인터럽트 하는 부분, 중요. 
-  if (isr_flag == 1)
+  //라이트 모드가 DUSTMODE일 경우
+  //라이트가 미세먼지에 따라 변하고, 블루투스로 켜고 끌수 있음
+  if (LightMode == DUSTMODE)
   {
-    detachInterrupt(0);
-    handleGesture();
-    isr_flag = 0;
-    attachInterrupt(0, interruptRoutine, FALLING);
+    if (0 <= CurrentDust && CurrentDust < 50)
+    {
+    }
+    else if (50 <= CurrentDust < 100)
+    {
+    }
+    else
+    {
+    }
+    if (isr_flag == 1)
+    {
+      detachInterrupt(0);
+      handleGesture();
+      isr_flag = 0;
+      attachInterrupt(0, interruptRoutine, FALLING);
+    }
+    getbtstring();
+    bluetoothonoff();
   }
-  getbtstring();
-  bluetoothonoff();
+  //라이트모드가 GENERALMODE일 경우
+  //제스쳐 인터럽트와 블루투스 인터럽트 발생
+  else
+  {
+    //제스쳐 인터럽트 
+    if (isr_flag == 1)
+    {
+      detachInterrupt(0);
+      handleGesture();
+      isr_flag = 0;
+      attachInterrupt(0, interruptRoutine, FALLING);
+    }
+    getbtstring();
+    bluetoothonoff();
 
-//모드 기능, 이스터에그, 4번이상 up할경우 특수 디자인 나옴
-  if(VolumeState == 4){
-     //whiteOverRainbow(102, 2);
-     rainbowFade2White(3,3,0);
+    //모드 기능, 이스터에그, 4번이상 up할경우 특수 디자인 나옴
+    if (VolumeState == 4)
+    {
+      //whiteOverRainbow(102, 2);
+      rainbowFade2White(3, 3, 0);
+    }
   }
-
-//매 회마다 turn을 늘려줌으로써, 계속 실행될 필요 없는 함수들 간격두고 실행
+  //매 회마다 turn을 늘려줌으로써, 계속 실행될 필요 없는 함수들 간격두고 실행
   turn++;
 }
 
@@ -240,11 +272,14 @@ void handleGesture()
       }
       break;
     case DIR_DOWN:
-      if(VolumeState == 0){}
+      if (VolumeState == 0)
+      {
+      }
       lcd.setCursor(15, 0); // 1번째, 2라인
       lcd.print('-');
       TurnOffLight();
-      if(VolumeState == 4){
+      if (VolumeState == 4)
+      {
         VolumeState -= 4;
         TurnOffLight();
       }
@@ -253,14 +288,14 @@ void handleGesture()
     case DIR_LEFT:
       Serial.println("LEFT");
       lcd.setCursor(15, 0); // 1번째, 2라인
-        lcd.print('<');
+      lcd.print('<');
       ColorState--;
       ChangeColor();
       break;
     case DIR_RIGHT:
       Serial.println("RIGHT");
       lcd.setCursor(15, 0); // 1번째, 2라인
-        lcd.print('>');
+      lcd.print('>');
       ColorState++;
       ChangeColor();
       break;

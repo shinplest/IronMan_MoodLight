@@ -13,6 +13,7 @@ static float Voc = 0.6;
 const float K = 0.5;
 int VoRaw;
 float Vo;
+float CurrentDust = 0;
 
 void printValue(String text, unsigned int value, bool isLast = false)
 {
@@ -66,7 +67,7 @@ float CalculatDust()
     float dustDensity = dV / K * 100.0;
     printFValue("DustDensity", dustDensity, "ug/m3", true);
     Serial.println("");
-    int dust = (int)(dustDensity - 70);
+    float dust = (int)(dustDensity - 70);
     if (dust < 0)
     dust = 0;
     return dust;
