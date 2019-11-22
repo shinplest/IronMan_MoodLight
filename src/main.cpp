@@ -382,7 +382,7 @@ void bluetoothonoff()
     }
     else //색 정보 보내줬을 경우
     {
-      if (LightState == true)
+      if (LightState == true && LightMode == GENERALMODE)
       {
         String red = data.substring(0, 2);
         String green = data.substring(2, 4);
