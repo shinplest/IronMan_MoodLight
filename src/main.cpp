@@ -11,6 +11,18 @@
 int turn = 0;
 int VolumeState = 0;
 
+//제스쳐 전역변수
+int sharpLEDPin = 8;
+int sharpVoPin = A1;
+unsigned long VoRawTotal = 0;
+int VoRawCount = 0;
+float Voc = 0.6;
+float K = 0.5;
+int VoRaw;
+float Vo;
+float CurrentDust = 0;
+int AvgDustNum = 10;
+
 //블루투스 관련 선언
 String data = "";
 void getbtstring();
