@@ -12,7 +12,6 @@ extern float CurrentDust;
 extern int AvgDustNum;
 
 
-
 void printValue(String text, unsigned int value, bool isLast = false)
 {
     Serial.print(text);
@@ -65,7 +64,7 @@ float CalculatDust()
     float dustDensity = dV / K * 100.0;
     printFValue("DustDensity", dustDensity, "ug/m3", true);
     Serial.println("");
-    float dust = (int)(dustDensity - 70);
+    float dust = (int)(dustDensity - 60);
     if (dust < 0)
     dust = 0;
     return dust;

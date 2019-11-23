@@ -11,7 +11,7 @@
 int turn = 0;
 int VolumeState = 0;
 
-//제스쳐 전역변수
+//미세먼지 전역변수
 int sharpLEDPin = 8;
 int sharpVoPin = A1;
 unsigned long VoRawTotal = 0;
@@ -99,7 +99,6 @@ void setup()
 
 void loop()
 {  
-
   //불이 꺼져있을 경우 연결 요청을 하는 사인을 내보냄
   if (LightState == false)
   {
@@ -151,7 +150,6 @@ void loop()
       btSerial.write(buffer);
     }
   }
-
   //라이트 모드가 DUSTMODE일 경우
   //라이트가 미세먼지에 따라 변하고, 블루투스로 켜고 끌수 있음
   if (LightMode == DUSTMODE)
