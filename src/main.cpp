@@ -21,7 +21,7 @@ float K = 0.5;
 int VoRaw;
 float Vo;
 float CurrentDust = 0;
-int AvgDustNum = 10;
+int AvgDustNum = 30;
 
 //블루투스 관련 선언
 String data = "";
