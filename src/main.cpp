@@ -366,16 +366,16 @@ void getbtstring()
       Serial.println("6개라서 끊어준다");
       break;
     }
-    if (datachar == 13) // /n 과 라인체인지값 빼준다.
+    if (datachar == '\r') // /n 과 라인체인지값 빼준다.
     {
       continue;
     }
-    if (datachar == 10)
+    if (datachar == '\n')
     {
       continue;
     }
     data += datachar;
-    delay(5);
+    delay(100);
   }
   Serial.println(data); //끝나고 읽은 값 출력해줌
   delay(300);
@@ -385,7 +385,8 @@ void bluetoothonoff()
 {
   if (!data.equals("")) //myString 값이 있다면
   {
-    if(data == "blue" || data == "blue)"){
+    //6글자 까지만 읽으므로 6글자만 함, 이보다 작을경우 랜덤값이 추가되는 오류 해결
+    if(data == "connet"){
       pulseWhite(0.5);
       pulseWhite(0.5);
       //켜져있는경우 랜덤으로 바꿔줌
