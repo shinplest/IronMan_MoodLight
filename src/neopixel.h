@@ -40,6 +40,8 @@ void pulseWhite(uint8_t wait) {
   }
 }
 
+
+
 void rainbowFade2White(int wait, int rainbowLoops, int whiteLoops) {
   int fadeVal=0, fadeMax=100;
 

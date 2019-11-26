@@ -25,6 +25,7 @@ int AvgDustNum = 30;
 
 //블루투스 관련 선언
 String data = "";
+bool connectflag = false;
 void getbtstring();
 void bluetoothonoff();
 void btserialFlush();
@@ -384,7 +385,15 @@ void bluetoothonoff()
 {
   if (!data.equals("")) //myString 값이 있다면
   {
-    if (data == "on")
+    if(data == "blue" || data == "blue)"){
+      pulseWhite(0.5);
+      pulseWhite(0.5);
+      //켜져있는경우 랜덤으로 바꿔줌
+      if(LightState == true){
+        ChangeColor();
+      }
+    }
+    else if (data == "on")
     {
       TurnOnLight();
     }
