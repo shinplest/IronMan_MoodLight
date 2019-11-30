@@ -1,10 +1,17 @@
 # IronMan_MoodLight
 by 신재형, 김주현, 양재혁
 
-<img src="./READMESRC/gesture.gif" width="30%">
+
+# Gesture Control
+<img src="./READMESRC/gesture.gif">
+
+# Bluetooth Control
+<img src="./READMESRC/gesture.gif">
+# Circuit
+
+![Circuit](./READMESRC/Circuit.png)
 
 ![sample_img](./READMESRC/sample_img.png)
-![Circuit](./READMESRC/Circuit.png)
 
 
 # License
