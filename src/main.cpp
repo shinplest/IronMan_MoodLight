@@ -375,7 +375,7 @@ void getbtstring()
       continue;
     }
     data += datachar;
-    delay(100);
+    delay(10);
   }
   Serial.println(data); //끝나고 읽은 값 출력해줌
   delay(300);
