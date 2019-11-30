@@ -1,8 +1,8 @@
 # IronMan_MoodLight
 by 신재형, 김주현, 양재혁
 
-![Ironman_inspire](./image/Ironman_inspire.png)
-
+![sample_img](./READMESRC/sample_img.png)
+![Circuit](./READMESRC/Circuit.png)
 
 
 # License
