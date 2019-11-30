@@ -11,6 +11,7 @@ by 신재형, 김주현, 양재혁
 
 # Bluetooth Control
 <img src="./READMESRC/bluetooth.gif">
+
 # Circuit
 
 ![Circuit](./READMESRC/Circuit.png)
