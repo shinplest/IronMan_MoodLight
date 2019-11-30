@@ -6,7 +6,7 @@ by 신재형, 김주현, 양재혁
 <img src="./READMESRC/gesture.gif">
 
 # Bluetooth Control
-<img src="./READMESRC/gesture.gif">
+<img src="./READMESRC/bluetooth.gif">
 # Circuit
 
 ![Circuit](./READMESRC/Circuit.png)
