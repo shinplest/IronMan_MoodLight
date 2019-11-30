@@ -10,8 +10,7 @@ by 신재형, 김주현, 양재혁
 # Circuit
 
 ![Circuit](./READMESRC/Circuit.png)
-
-![sample_img](./READMESRC/sample_img.png)
+<img src="./READMESRC/sample_img.png" width = "30%">
 
 
 # License
