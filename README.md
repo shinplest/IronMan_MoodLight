@@ -18,11 +18,11 @@ by 신재형, 김주현, 양재혁
 
 # 3rd-Party Notice
 
-3D sketchup file of Arc reactor 
-[코코아팹]https://kocoafab.cc/make/view/671
+3D sketchup file of Arc reactor  
+https://kocoafab.cc/make/view/671
 
 
-Avengers music Arduino Code
+Avengers music Arduino Code  
 http://www.maxblitz.com.br/2019/05/avengers.html
 
 
