@@ -246,7 +246,7 @@ void TurnOnLight()
     {
       strip.setPixelColor(i, 0, 0, 0, 255); //점등
       strip.show();
-      delay(150);
+      delay(100);
     }
     LightState = true; //불 켜져 있음 표시
     Serial.println("불이 켜져있습니다.");
