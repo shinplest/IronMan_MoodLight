@@ -30,7 +30,7 @@ http://www.maxblitz.com.br/2019/05/avengers.html
 ```
 MIT License
 
-Copyright (C) 2019 shineceo97
+Copyright (C) 2019 shinplest
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
