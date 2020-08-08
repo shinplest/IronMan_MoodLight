@@ -3,13 +3,13 @@
 
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>  
-LiquidCrystal_I2C lcd(0x27, 16, 2); //lcd 객체 선언
+LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 16, 2); //lcd 객체 선언
 int lcdflag = 0;
 
 void UpdateLCDbyRegister(){
     int Register = digitalRead(A0);
     if(lcdflag == 0 && Register == 1)
-  lcd.init();
+  lcd.begin();
   if(Register == 0){
     lcdflag = 0;
   }else{

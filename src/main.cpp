@@ -43,31 +43,31 @@ void setup()
   btSerial.begin(9600);
   Serial.begin(9600);
 
-  lcd.init(); // LCD 초기화
-  lcd.backlight();
-  lcd.setCursor(0, 0); // 1번째, 1라인
-  lcd.print("PROOF THAT STARK");
-  lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("  HAS A HEART");
-  delay(2500);
+  // lcd.begin(); // LCD 초기화
+  // lcd.backlight();
+  // lcd.setCursor(0, 0); // 1번째, 1라인
+  // lcd.print("PROOF THAT STARK");
+  // lcd.setCursor(0, 1); // 1번째, 2라인
+  // lcd.print("  HAS A HEART");
+  // delay(2500);
 
-  lcd.init(); // LCD 초기화
-  lcd.backlight();
-  lcd.setCursor(0, 0); // 1번째, 1라인
-  lcd.print("Turning On");
-  lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("Gesture Sensor..");
-  delay(1000);
+  // lcd.begin(); // LCD 초기화
+  // lcd.backlight();
+  // lcd.setCursor(0, 0); // 1번째, 1라인
+  // lcd.print("Turning On");
+  // lcd.setCursor(0, 1); // 1번째, 2라인
+  // lcd.print("Gesture Sensor..");
+  // delay(1000);
 
-  lcd.init(); // LCD 초기화
-  lcd.backlight();
-  lcd.setCursor(0, 0); // 1번째, 1라인
-  lcd.print("Turning On");
-  lcd.setCursor(0, 1); // 1번째, 2라인
-  lcd.print("Dust Sensor..");
-  delay(1000);
+  // lcd.begin(); // LCD 초기화
+  // lcd.backlight();
+  // lcd.setCursor(0, 0); // 1번째, 1라인
+  // lcd.print("Turning On");
+  // lcd.setCursor(0, 1); // 1번째, 2라인
+  // lcd.print("Dust Sensor..");
+  // delay(1000);
 
-  randomSeed(analogRead(0)); //랜덤시드 for gestrue light changing system
+  // randomSeed(analogRead(0)); //랜덤시드 for gestrue light changing system
 
   strip.setBrightness(brightness);
   strip.begin();
@@ -95,7 +95,7 @@ void setup()
   {
     Serial.println(F("Something went wrong during gesture sensor init!"));
   }
-  lcd.init();
+  lcd.begin();
 }
 
 void loop()
@@ -104,25 +104,25 @@ void loop()
   if (LightState == false)
   {
     //whiteOverRainbow(100, 2);
-    if (turn % 2 == 0)
-    {
-      printGestureRunning();
-      if (turn % 2 == 0)
-        lcd.print(".");
-      else
-        lcd.print(" ");
-    }
-    else
-    {
-      printBluetoothOkay();
-      if (turn % 2 == 0)
-        lcd.print(".");
-      else
-        lcd.print(" ");
-    }
-    lcd.setCursor(0, 1);
-    lcd.print(" Turn On Light.");
-    pulseWhite(4);
+    // if (turn % 2 == 0)
+    // {
+    //   printGestureRunning();
+    //   if (turn % 2 == 0)
+    //     lcd.print(".");
+    //   else
+    //     lcd.print(" ");
+    // }
+    // else
+    // {
+    //   printBluetoothOkay();
+    //   if (turn % 2 == 0)
+    //     lcd.print(".");
+    //   else
+    //     lcd.print(" ");
+    // }
+    // lcd.setCursor(0, 1);
+    // lcd.print(" Turn On Light.");
+    //pulseWhite(4);
   }
 
   //레지스터의 값에 따라 LCD가 종료되었다 켜지면, 다시 초기화를 시켜줌
