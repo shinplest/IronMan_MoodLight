@@ -12,6 +12,9 @@ by 신재형, 김주현, 양재혁
 # Bluetooth Control
 <img src="./READMESRC/bluetooth.gif">
 
+# Demo Video
+https://www.youtube.com/watch?v=fZm5VPcRgbo
+
 # Circuit
 
 ![Circuit](./READMESRC/Circuit.png)
